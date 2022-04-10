@@ -19,6 +19,10 @@ repositories {
 	mavenLocal()
 }
 
+ext {
+	set('springCloudVersion', "2021.0.0")
+	mapstructVersion = "1.5.0.Beta2"
+}
 
 
 dependencies {
@@ -35,8 +39,18 @@ dependencies {
  	annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
  	implementation 'org.springframework.boot:spring-boot-starter-validation'
  	
+ 	implementation 'org.springframework.cloud:spring-cloud-starter-config'
+ 	
+ 	implementation 'junit:junit:4.13.1'
  
 }
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
 
 tasks.named('test') {
 	useJUnitPlatform()

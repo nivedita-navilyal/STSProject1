@@ -1,4 +1,4 @@
-package com.cgg.task1.entities;
+package com.cgg.task1.vo;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -6,11 +6,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
+import lombok.Builder;
 import lombok.Data;
 
+@Builder
 @Data
 @Entity
 public class Product {
@@ -23,10 +24,10 @@ public class Product {
 	private String name;
 	@NotEmpty(message="Please provide proper description")
 	private String description;
-    @Min(1)
-	private int quantity;
     @Min(100)
 	private long price;
+    @Min(1)
+	private int quantity;
     @NotEmpty(message="company cannot be empty")
     private String company;
     

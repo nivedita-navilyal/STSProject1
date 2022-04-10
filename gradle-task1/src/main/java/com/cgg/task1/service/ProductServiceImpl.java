@@ -8,139 +8,97 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.cgg.task1.bo.ProductBo;
 import com.cgg.task1.controller.ProductController;
 import com.cgg.task1.dto.ProductDto;
-import com.cgg.task1.entities.Product;
 import com.cgg.task1.exception.NoRecordFoundException;
 import com.cgg.task1.exception.ProductNotFoundException;
 import com.cgg.task1.exception.ServiceException;
 import com.cgg.task1.mapper.ProductMapper;
 import com.cgg.task1.repository.ProductRepository;
+import com.cgg.task1.vo.Product;
 
 @Service
-public class ProductServiceImpl implements ProductService{
-	
+public class ProductServiceImpl implements ProductService {
+
 	@Autowired
 	private ProductRepository productRepository;
-	
-	@Autowired 
-	ProductMapper productMapper;
-	
-	Logger logger=LoggerFactory.getLogger(ProductController.class);
 
-	
+	@Autowired
+	private ProductBo productBo;
+
+	@Autowired
+	ProductMapper productMapper;
+
+	Logger logger = LoggerFactory.getLogger(ProductController.class);
+
 	@Override
-	public ProductDto saveProduct(ProductDto productDto) throws ServiceException {
+	public Product saveProduct(Product product) throws ServiceException {
 		try {
-			Product product = productRepository.save(productMapper.dtoToModel(productDto));
-			return productMapper.modelToDto(product);
-		}catch(Exception e) {
+			ProductDto productDto = productBo.saveProduct(productMapper.modelToDto(product));
+			return productMapper.dtoToModel(productDto);
+		} catch (Exception e) {
 			logger.error("Could not add product");
-			throw new ServiceException("Could not add product"+e);	
+			throw new ServiceException("Could not add product" + e);
 		}
 	}
 
 	@Override
-	public List<ProductDto> findAllProducts() throws ServiceException {
-		List<Product> productVo=productRepository.findAll();
+	public List<Product> findAllProducts() throws ServiceException {
+		List<ProductDto> productDto = productBo.findAllProducts();
 		try {
-			if(!productVo.isEmpty()) {
-				return productMapper.modelsToDtos(productVo);
-			}
-			else throw new NoRecordFoundException("Product List is empty");
-		}
-		catch(NoRecordFoundException e) {
+			if (!productDto.isEmpty()) {
+				return productMapper.dtosToModels(productDto);
+
+			} else
+				throw new NoRecordFoundException("Product List is empty");
+		} catch (NoRecordFoundException e) {
 			logger.error(e.getMessage());
 			throw new ServiceException(e.getMessage());
 		}
-	
+
 	}
 
 	@Override
-	public ProductDto getProductById(int id) throws ServiceException {
-		try {
-			Product productId =productRepository.findById(id).orElseThrow(()->new ProductNotFoundException("product doesnot exists"));
-			return productMapper.modelToDto(productId);
-		}catch(ProductNotFoundException e) {
-			throw new ServiceException(e.getMessage());
-		}
-		
+	public Product getProductById(int id) throws ServiceException {
+		logger.info("Fetched details of given product id in service layer");
+		return productMapper.dtoToModel(productBo.getProductById(id));
+//		try {
+//			ProductDto productId = productBo.getProductById(id).orElseThrow(()->new ProductNotFoundException("product doesnot exists"));
+//			return productMapper.dtoToModel(productId);
+//			// return productMapper.dtoToModel(productBo.getProductById(id));
+//		} 
+//		catch (ProductNotFoundException e) {
+//			throw new ServiceException(e.getMessage());
+//		}
+
 	}
 
 	@Override
 	public String deleteProductById(int id) throws ServiceException {
 		try {
-			if(productRepository.existsById(id)) {
+			if (productRepository.existsById(id)) {
 				productRepository.deleteById(id);
-			}
-			else throw new ProductNotFoundException("Id doesnot Exists!!!!");
+			} else
+				throw new ProductNotFoundException("Id doesnot Exists!!!!");
+		} catch (ProductNotFoundException e) {
+			throw new ServiceException(e.getMessage());
 		}
-		catch(ProductNotFoundException e) {
-				throw new ServiceException(e.getMessage());
-			}
 		return "Product Deleted Successfully";
 	}
 
 	@Override
 	public String healthCheck(int id) {
-		Optional<Product> pro= productRepository.findById(id);
-		
-		String check="";
-		if(pro.isPresent()) {
+
+		Optional<ProductDto> pro = productRepository.findById(id);
+
+		if (pro.isPresent()) {
 			pro.get();
-			check= "Health Checked Successfully";
+			return "Health Checked Successfully";
+		} else {
+			return "Health Failed";
 		}
-		else {
-			check = "Health Failed";
-		}
-		return check;	
-		
+
 	}
-	
-	
+
 }
-
-	
-	
-
-//	@Override
-//	public Product saveProduct(Product product) {
-//		return productRepository.save(product);
-//	}
-//
-//	@Override
-//	public List<Product> findAllProducts() {
-//		return productRepository.findAll();
-//	}
-//
-//	@Override
-//	public String getProductById(int id) throws ProductNotFoundException {
-//		Optional<Product> pr = productRepository.findById(id);
-//		String ans="";
-//		if(pr.isPresent()) {
-//			pr.get();
-//			ans= "Database Connection Succeed. Product Data fetched";
-//		}
-//		else {
-//			ans="Product not found with given id. Connection Refused";
-//		}
-//		return ans;
-//	}
-//
-//	@Override
-//	public Product getProductWithId(int id) throws ProductNotFoundException {
-//		Optional<Product> pr = productRepository.findById(id); 
-//		Product product = null;
-//		if(pr.isPresent()) {
-//			product = pr.get();
-//			return product;
-//		}
-//		else {
-//			throw new ProductNotFoundException("Product not found with given Id");
-//		}
-//	}
-	
-
-
-
-

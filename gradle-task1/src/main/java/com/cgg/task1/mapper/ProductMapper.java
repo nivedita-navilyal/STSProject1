@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.mapstruct.Mapper;
 import com.cgg.task1.dto.ProductDto;
-import com.cgg.task1.entities.Product;
+import com.cgg.task1.vo.Product;
 
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
